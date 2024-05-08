@@ -1,3 +1,5 @@
+//Login.tsx
+/* eslint-disable prettier/prettier */
 import { StackNavigationProp } from "@react-navigation/stack";
 import React from "react"
 import {
