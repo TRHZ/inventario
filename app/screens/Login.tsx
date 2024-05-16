@@ -1,33 +1,24 @@
-//Login.tsx
-/* eslint-disable prettier/prettier */
 import { StackNavigationProp } from "@react-navigation/stack";
-import React from "react"
-import {
-    SafeAreaView,
-    Button,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-    Alert
-} from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, Button, View, Alert } from "react-native";
+import { TextInput } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const styles = StyleSheet.create({
     screen: {
         height: '100%',
-        backgroundColor: '#543343',
+        backgroundColor: '#323844',
         justifyContent: 'center',
         alignItems: 'center',
     },
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#c0c0c040',
+        backgroundColor: '#C0C0C020',
         width: '100%',
         padding: 16,
     },
     textInput: {
-        color: 'black',
         borderBottomWidth: 1,
         borderRadius: 8,
         backgroundColor: 'white',
@@ -36,47 +27,53 @@ const styles = StyleSheet.create({
         width: '80%',
         margin: 8,
     },
+    text: {
+        color: '#FFFFFF',
+        fontSize: 30
+    }
 });
 
 type RootStackParamList = {
     Home: undefined;
     Login: undefined;
-}
-
-type LogInProps = {
-    navigation: StackNavigationProp <RootStackParamList, 'Home'>;
 };
 
-function Login({navigation}: LogInProps): React.JSX.Element {
-    const [user, setUser] = React.useState('');
-    const [password, setPassword] = React.useState('');
+type LoginProps = {
+    navigation: StackNavigationProp<RootStackParamList, 'Home'>;
+};
 
-    const btnIngresaronPress = function () {
-        if (user && password) {
-            Alert.alert('Entraste', 'Iniciando sesión...');
+function Login({ navigation }: LoginProps): React.JSX.Element {
+    const [usuario, setUsuario] = useState('');
+    const [contraseña, setContraseña] = useState('');
+
+    const btnIngresarOnPress = function () {
+        if (usuario && contraseña) {
             navigation.navigate('Home');
-            return
+            return;
         }
-        Alert.alert('Fallido', 'Datos incorrectos');
+        Alert.alert('Fallido', 'Datos incorrectos')
     };
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.container}>
-                <Text>Ingrese su usuario</Text>
-                <TextInput style={styles.textInput}
+                <Text style={styles.text}>Iniciar sesión</Text>
+                <TextInput
+                    style={styles.textInput}
                     placeholder="Usuario"
-                    placeholderTextColor={'#828894'}
-                    onChangeText={u => setUser(u)}
+                    placeholderTextColor='#828894'
+                    onChangeText={u => setUsuario(u)}
                 />
-                <TextInput style={styles.textInput}
+                <TextInput
+                    style={styles.textInput}
                     placeholder="Contraseña"
+                    placeholderTextColor='#828894'
                     secureTextEntry={true}
-                    placeholderTextColor={'#828894'}
-                    onChangeText={p => setPassword(p)}
+                    onChangeText={p => setContraseña(p)}
                 />
-                <Button title="Ingresar" onPress={btnIngresaronPress} />
+                <Button title='Ingresar' onPress={btnIngresarOnPress} />
             </View>
         </SafeAreaView>
     );
 }
+
 export default Login;

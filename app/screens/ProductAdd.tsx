@@ -1,66 +1,76 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, Button, Alert } from 'react-native';
-import localDB from '../persistance/localdb'; // Importa el módulo para acceder a la base de datos
+import { Button, SafeAreaView, Text, TextInput, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import LocalDB from '../persistance/localdb';
+import { RootStackParamList } from '../../App';
 
-const ProductAdd: React.FC = () => {
+type ProductAddProps = {};
+
+const ProductAdd: React.FC<ProductAddProps> = () => {
     const [nombre, setNombre] = useState('');
     const [precio, setPrecio] = useState('');
     const [minStock, setMinStock] = useState('');
     const [maxStock, setMaxStock] = useState('');
+    const [currentStock, setCurrentStock] = useState('');
+    const navigation = useNavigation();
 
-    const guardarProducto = async () => {
-        if (!nombre || !precio || !minStock || !maxStock) {
-            Alert.alert('Error', 'Por favor complete todos los campos');
-            return;
-        }
-
+    const addProduct = async () => {
         try {
-            const db = await localDB.connect();
-            await db.executeSql(
-                'INSERT INTO productos (nombre, precio, minStock, currentStock, maxStock) VALUES (?, ?, ?, 0, ?)',
-                [nombre, parseFloat(precio), parseInt(minStock), parseInt(maxStock)]
-            );
-            Alert.alert('Éxito', 'Producto guardado exitosamente');
+            const db = await LocalDB.connect();
+            await db.transaction(async (tx) => {
+                await tx.executeSql(
+                    'INSERT INTO productos (nombre, precio, minStock, maxStock, currentStock) VALUES (?, ?, ?, ?, ?)',
+                    [nombre, parseFloat(precio), parseInt(minStock), parseInt(maxStock), parseInt(currentStock)]
+                );
+            });
+            navigation.goBack();
         } catch (error) {
-            console.error(error);
-            Alert.alert('Error', 'Hubo un error al guardar el producto');
+            console.error('Error al agregar producto:', error);
         }
     };
 
     return (
         <SafeAreaView style={styles.container}>
+            <Text style={styles.label}>Nombre:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Nombre del producto"
                 value={nombre}
                 onChangeText={setNombre}
-                placeholderTextColor="rgba(0, 0, 0, 0.5)" // Color negro con opacidad reducida
+                placeholder="Nombre del producto"
             />
+            <Text style={styles.label}>Precio:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Precio"
                 value={precio}
                 onChangeText={setPrecio}
+                placeholder="Precio"
                 keyboardType="numeric"
-                placeholderTextColor="rgba(0, 0, 0, 0.5)" // Color negro con opacidad reducida
             />
+            <Text style={styles.label}>Stock mínimo:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Stock mínimo"
                 value={minStock}
                 onChangeText={setMinStock}
+                placeholder="Stock mínimo"
                 keyboardType="numeric"
-                placeholderTextColor="rgba(0, 0, 0, 0.5)" // Color negro con opacidad reducida
             />
+            <Text style={styles.label}>Stock máximo:</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Stock máximo"
                 value={maxStock}
                 onChangeText={setMaxStock}
+                placeholder="Stock máximo"
                 keyboardType="numeric"
-                placeholderTextColor="rgba(0, 0, 0, 0.5)" // Color negro con opacidad reducida
             />
-            <Button title="Guardar" onPress={guardarProducto} />
+            <Text style={styles.label}>Stock actual:</Text>
+            <TextInput
+                style={styles.input}
+                value={currentStock}
+                onChangeText={setCurrentStock}
+                placeholder="Stock actual"
+                keyboardType="numeric"
+            />
+            <Button title="Agregar Producto" onPress={addProduct} />
         </SafeAreaView>
     );
 };
@@ -68,19 +78,18 @@ const ProductAdd: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         padding: 20,
     },
+    label: {
+        fontWeight: 'bold',
+        marginTop: 10,
+    },
     input: {
-        height: 40,
-        width: '100%',
-        borderColor: 'gray',
         borderWidth: 1,
+        borderColor: 'black',
         borderRadius: 5,
-        paddingHorizontal: 10,
+        padding: 10,
         marginBottom: 10,
-        color: 'black', // Establece el color del texto en negro
     },
 });
 

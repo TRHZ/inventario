@@ -6,13 +6,16 @@ import Login from './app/screens/Login';
 import ProductDetails, { Params as ProductDetailsParams } from './app/screens/ProductDetails';
 import ProductAdd from './app/screens/ProductAdd';
 import { Button } from 'react-native';
-const Stack = createStackNavigator();
 
 export type RootStackParamList = {
+  Login: undefined;
   Home: undefined;
-  ProdutDetails: ProductDetailsParams;
+  ProductDetails: ProductDetailsParams;
   ProductAdd: undefined;
 };
+
+export type StackNavigation = NavigationProp<RootStackParamList>;
+const Stack = createStackNavigator<RootStackParamList>();
 
 function HomeHeader(): React.JSX.Element {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,11 +33,11 @@ function App(): React.JSX.Element {
         component={Login}
       />
       <Stack.Screen
-      name="Home"
-      component={Home} 
-      options={{
-        headerRight: HomeHeader,
-      }} />
+        name="Home"
+        component={Home}
+        options={{
+          headerRight: HomeHeader,
+        }} />
       <Stack.Screen name="ProductDetails" component={ProductDetails} />
       <Stack.Screen name="ProductAdd" component={ProductAdd} />
     </Stack.Navigator>
