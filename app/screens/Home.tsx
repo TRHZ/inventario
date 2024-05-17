@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { Product } from '../model/Product';
-import { RootStackParamList } from '../../App';
-import LocalDB from '../persistance/localdb';
+import React, { useState, useEffect } from "react";
+import { SafeAreaView, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import LocalDB from "../persistance/localdb";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
+import { RootStackParamList } from "../../App";
+import { Product } from "../model/Product";
 
 type HomeScreenProps = StackNavigationProp<RootStackParamList, 'Home'>;
 type HomeScreenRoute = RouteProp<RootStackParamList, 'Home'>;
@@ -14,83 +15,90 @@ type HomeProps = {
   route: HomeScreenRoute;
 };
 
-function Home({ navigation }: HomeProps): React.JSX.Element {
+const Home: React.FC<HomeProps> = ({ navigation, route }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
-  const productItem = ({ item }: { item: Product }) => (
-    <TouchableOpacity
-      style={styles.productItem}
-      onPress={() => navigation.push('ProductDetails', { product: item })}>
-      <View style={{ flexDirection: 'row' }}>
-        <View style={{ flexDirection: 'column', flexGrow: 9 }}>
-          <Text style={styles.itemTitle}>{item.nombre}</Text>
-          <Text style={styles.itemDetails}>
-            Precio: $ {item.precio.toFixed(2)}
-          </Text>
-        </View>
-        <Text
-          style={[
-            styles.itemBadge,
-            item.currentStock < item.minStock ? styles.itemBadgeError : null,
-          ]}>
-          {item.currentStock}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
+    try {
       LocalDB.init();
-      navigation.addListener('focus', async () =>{
-        const db = await LocalDB.connect();
-        db.transaction(tx => {
-          tx.executeSql(
-            'SELECT * FROM productos',
-            [],
-            (_, res) => setProducts(res.rows.raw()),
-            error => console.error({ error }),
-          );
-        });
-      })
-    };
-    fetchData();
-  }, []);
+      const db = await LocalDB.connect();
+      db.transaction(async tx => {
+        tx.executeSql(
+          'SELECT * FROM productos',
+          [],
+          (_,res) => {
+            let prods: Product[] = [];
+            for(let i = 0; i < res.rows.length; i++){
+              prods.push(res.rows.item(i) as Product);
+            }
+            setProducts(prods);
+          },
+          error => console.error({error}),
+        );
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   return (
     <SafeAreaView>
-      <FlatList
-        data={products}
-        renderItem={productItem}
-        keyExtractor={item => item.id.toString()}
+      <FlatList 
+        data={products} 
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            style={styles.productItem} 
+            onPress={() => navigation.push("ProductDetails", { product: item })}
+          >
+            <Text style={styles.itemTitle}>{item.nombre}</Text>
+            <Text style={styles.itemDetails}>Precio: ${item.precio.toFixed(2)}</Text>
+            <Text style={[styles.itemBadge, item.currentStock < item.minStock ? styles.itemBadgeError : null]}>
+              {item.currentStock}
+            </Text>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item.id.toString()} 
       />
+
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   productItem: {
     padding: 12,
-    borderBottomColor: '#c0c0c0',
-    borderBottomWidth: 1,
-    backgroundColor: 'white',
   },
   itemTitle: {
-    fontSize: 24,
-    color: 'black',
+    fontSize: 20,
   },
   itemDetails: {
-    fontSize: 18,
-    opacity: 0.8,
+    fontSize: 14,
+    opacity: 0.7,
   },
   itemBadge: {
     fontSize: 24,
-    color: '#204080',
-    fontWeight: 'bold',
-    alignSelf: 'center',
+    color: 'green',
+    alignSelf: 'center'
   },
   itemBadgeError: {
-    color: 'red',
+    color: 'red'
+  },
+  addButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    margin: 10,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

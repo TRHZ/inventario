@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button, SafeAreaView, Text, TextInput, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LocalDB from '../persistance/localdb';
-import { RootStackParamList } from '../../App';
 
 type ProductAddProps = {};
 

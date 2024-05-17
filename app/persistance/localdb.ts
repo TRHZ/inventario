@@ -33,13 +33,26 @@ export default class LocalDB {
         error => console.error({error}),
       );
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS ingresos  (id INTEGER PRIMARY KEY AUTOINCREMENT, productoId INTEGER, cantidad INTEGER, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (productoId) REFERENCES productos(id))',
+        `CREATE TABLE IF NOT EXISTS ingresos  (
+          id          INTEGER       PRIMARY KEY AUTOINCREMENT,
+          productoId  INTEGER,
+          cantidad    INTEGER,
+          fecha       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (productoId)  REFERENCES productos(id)
+        )`,
+        
         [],
         () => console.log('Created table Ingresos'),
         error => console.error(error),
       );
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS egresos  (id INTEGER PRIMARY KEY AUTOINCREMENT, productoId INTEGER, cantidad INTEGER, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (productoId) REFERENCES productos(id))',
+        `CREATE TABLE IF NOT EXISTS egresos  (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          productoId  INTEGER,
+          cantidad    INTEGER,
+          fecha       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (productoId) REFERENCES productos(id)
+        )`,
         [],
         () => console.log('Created table Egresos'),
         error => console.error(error),

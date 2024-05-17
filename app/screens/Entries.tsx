@@ -1,4 +1,3 @@
-// Entries.tsx
 import React, { useState } from 'react';
 import { SafeAreaView, Text, TextInput, Button, StyleSheet } from 'react-native';
 import LocalDB from '../persistance/localdb.ts';
