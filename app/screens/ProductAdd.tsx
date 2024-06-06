@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, SafeAreaView, Text, TextInput, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LocalDB from '../persistance/localdb';
+import WebServiceParams from '../WebServiceParams';
 
 type ProductAddProps = {};
 
@@ -23,6 +24,22 @@ const ProductAdd: React.FC<ProductAddProps> = () => {
                 );
             });
             navigation.goBack();
+            const response = await fetch(
+                `http://${WebServiceParams.host}:${WebServiceParams.port}/products`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        precio: parseFloat(precio),
+                        minStock: parseInt(minStock),
+                        maxStock: parseInt(maxStock),
+                        currentStock: parseInt(currentStock),
+                    }),
+                }
+            )
         } catch (error) {
             console.error('Error al agregar producto:', error);
         }

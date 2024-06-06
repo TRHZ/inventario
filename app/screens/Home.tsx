@@ -6,6 +6,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../App";
 import { Product } from "../model/Product";
+import WebServiceParams from '../WebServiceParams';
 
 type HomeScreenProps = StackNavigationProp<RootStackParamList, 'Home'>;
 type HomeScreenRoute = RouteProp<RootStackParamList, 'Home'>;
@@ -26,14 +27,14 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
         tx.executeSql(
           'SELECT * FROM productos',
           [],
-          (_,res) => {
+          (_, res) => {
             let prods: Product[] = [];
-            for(let i = 0; i < res.rows.length; i++){
+            for (let i = 0; i < res.rows.length; i++) {
               prods.push(res.rows.item(i) as Product);
             }
             setProducts(prods);
           },
-          error => console.error({error}),
+          error => console.error({ error }),
         );
       });
     } catch (error) {
@@ -41,9 +42,28 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
     }
   };
 
+  const fetchFromAPI = async () => {
+    try {
+      const response = await fetch(
+        `http://${WebServiceParams.host}:${WebServiceParams.port}/productos`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      setProducts(await response.json());
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       fetchData();
+      fetchFromAPI();
     }, [])
   );
 
@@ -65,7 +85,6 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
         )}
         keyExtractor={(item) => item.id.toString()} 
       />
-
     </SafeAreaView>
   );
 };
@@ -73,21 +92,27 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   productItem: {
     padding: 12,
+    borderBottomWidth: 1,
+    backgroundColor: 'white',
   },
   itemTitle: {
-    fontSize: 20,
+    fontSize: 24,
+    color: '#000',
+    textTransform: 'uppercase',
   },
   itemDetails: {
     fontSize: 14,
     opacity: 0.7,
+    color: '#000',
   },
   itemBadge: {
     fontSize: 24,
     color: 'green',
-    alignSelf: 'center'
+    alignSelf: 'flex-end'
   },
   itemBadgeError: {
-    color: 'red'
+    color: 'red',
+    fontWeight: 'bold',
   },
   addButton: {
     backgroundColor: '#007bff',
